@@ -7,7 +7,7 @@ set(MICROPY_PORT_DIR ${CMAKE_SOURCE_DIR})
 
 # Set the board if it's not already set.
 if(NOT MICROPY_BOARD)
-    set(MICROPY_BOARD GENERIC)
+    set(MICROPY_BOARD GENERIC_C3)
 endif()
 
 # Set the board directory and check that it exists.
