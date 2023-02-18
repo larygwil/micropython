@@ -97,8 +97,6 @@ STATIC ledc_timer_config_t timers[PWM_TIMER_MAX];
 // How much to shift from the HIGHEST_PWM_RES duty resolution to the user interface duty resolution UI_RES_16_BIT
 #define UI_RES_SHIFT (UI_RES_16_BIT - HIGHEST_PWM_RES) // 0 for ESP32, 2 for S2, S3, C3
 
-// If the PWM frequency is less than EMPIRIC_FREQ, then LEDC_REF_CLK_HZ(1 MHz) source is used, else LEDC_APB_CLK_HZ(80 MHz) source is used
-#define EMPIRIC_FREQ (10) // Hz
 
 // Config of timer upon which we run all PWM'ed GPIO pins
 STATIC bool pwm_inited = false;
@@ -208,9 +206,6 @@ STATIC void set_freq(machine_pwm_obj_t *self, unsigned int freq, ledc_timer_conf
     if (freq != timer->freq_hz) {
         // Find the highest bit resolution for the requested frequency
         unsigned int i = LEDC_APB_CLK_HZ; // 80 MHz
-        if (freq < EMPIRIC_FREQ) {
-            i = LEDC_REF_CLK_HZ; // 1 MHz
-        }
 
         #if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
         // original code
@@ -243,9 +238,6 @@ STATIC void set_freq(machine_pwm_obj_t *self, unsigned int freq, ledc_timer_conf
         timer->duty_resolution = res;
         timer->freq_hz = freq;
         timer->clk_cfg = LEDC_USE_APB_CLK;
-        if (freq < EMPIRIC_FREQ) {
-            timer->clk_cfg = LEDC_USE_REF_TICK;
-        }
 
         // Set frequency
         esp_err_t err = ledc_timer_config(timer);
