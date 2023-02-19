@@ -11,19 +11,18 @@
 #include "py/obj.h"
 #include "py/runtime.h"
 
-void s1(void);
 void s2(void);
 void s3(void); //  call_adc_digi_controller_configure
 void s4(void);
 // void s5(void);
 
-STATIC mp_obj_t dmaadc_s1(/*mp_obj_t a_obj, mp_obj_t b_obj*/) {
-    // int a = mp_obj_get_int(a_obj);
-    // int b = mp_obj_get_int(b_obj);
-    s1(); // memset()
-    // return mp_obj_new_int(a + b);
-    return mp_obj_new_int(0);
-};
+// STATIC mp_obj_t dmaadc_s1(/*mp_obj_t a_obj, mp_obj_t b_obj*/) {
+//     // int a = mp_obj_get_int(a_obj);
+//     // int b = mp_obj_get_int(b_obj);
+//     s1(); // memset()
+//     // return mp_obj_new_int(a + b);
+//     return mp_obj_new_int(0);
+// };
 
 
 // call_adc_digi_initialize
@@ -50,7 +49,7 @@ STATIC mp_obj_t dmaadc_s4() {
 
 
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s1_obj, dmaadc_s1);
+// STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s1_obj, dmaadc_s1);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s2_obj, dmaadc_s2);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s3_obj, dmaadc_s3);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s4_obj, dmaadc_s4);
@@ -58,7 +57,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s4_obj, dmaadc_s4);
 
 STATIC const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_dmaadc) },
-    { MP_ROM_QSTR(MP_QSTR_s1), MP_ROM_PTR(&dmaadc_s1_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_s1), MP_ROM_PTR(&dmaadc_s1_obj) },
     { MP_ROM_QSTR(MP_QSTR_s2), MP_ROM_PTR(&dmaadc_s2_obj) },
     { MP_ROM_QSTR(MP_QSTR_s3), MP_ROM_PTR(&dmaadc_s3_obj) },
     { MP_ROM_QSTR(MP_QSTR_s4), MP_ROM_PTR(&dmaadc_s4_obj) },
@@ -163,13 +162,7 @@ static void call_adc_digi_controller_configure(    // s3()
 
 
 
-static uint8_t     result[TIMES] = {0};
 
-void s1(void)
-{
-    printf("memset() \n");
-    memset(result, 0xcc, TIMES);
-}
 
 void s2(void)
 {
