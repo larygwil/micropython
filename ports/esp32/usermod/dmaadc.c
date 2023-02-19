@@ -163,8 +163,6 @@ static void call_adc_digi_controller_configure(    // s3()
 
 
 
-static esp_err_t     ret;
-static uint32_t     ret_num = 0;
 static uint8_t     result[TIMES] = {0};
 
 void s1(void)
