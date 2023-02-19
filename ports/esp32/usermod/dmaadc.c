@@ -15,7 +15,7 @@ void s1(void);
 void s2(void);
 void s3(void);
 void s4(void);
-void s5(void);
+// void s5(void);
 
 STATIC mp_obj_t dmaadc_s1(/*mp_obj_t a_obj, mp_obj_t b_obj*/) {
     // int a = mp_obj_get_int(a_obj);
@@ -34,13 +34,13 @@ STATIC mp_obj_t dmaadc_s3() {
     return mp_obj_new_int(0);
 };
 STATIC mp_obj_t dmaadc_s4() {
-    s4();
+    s4(); // adc_digi_start(void) 
     return mp_obj_new_int(0);
 };
-STATIC mp_obj_t dmaadc_s5() {
-    s5();
-    return mp_obj_new_int(0);
-};
+// STATIC mp_obj_t dmaadc_s5() {
+//     s5();
+//     return mp_obj_new_int(0);
+// };
 
 
 
@@ -48,7 +48,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s1_obj, dmaadc_s1);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s2_obj, dmaadc_s2);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s3_obj, dmaadc_s3);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s4_obj, dmaadc_s4);
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s5_obj, dmaadc_s5);
+// STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s5_obj, dmaadc_s5);
 
 STATIC const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_dmaadc) },
@@ -56,7 +56,7 @@ STATIC const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_s2), MP_ROM_PTR(&dmaadc_s2_obj) },
     { MP_ROM_QSTR(MP_QSTR_s3), MP_ROM_PTR(&dmaadc_s3_obj) },
     { MP_ROM_QSTR(MP_QSTR_s4), MP_ROM_PTR(&dmaadc_s4_obj) },
-    { MP_ROM_QSTR(MP_QSTR_s5), MP_ROM_PTR(&dmaadc_s5_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_s5), MP_ROM_PTR(&dmaadc_s5_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(dmaadc_module_globals, dmaadc_module_globals_table);
 
@@ -155,14 +155,7 @@ static void call_adc_digi_controller_configure(
     ESP_ERROR_CHECK(   adc_digi_controller_configure(&dig_cfg));
 }
 
-static bool check_valid_data(const adc_digi_output_data_t *data)
-{
-    const unsigned int unit = data->type2.unit;
-    if (unit > 2) return false;
-    if (data->type2.channel >= SOC_ADC_CHANNEL_NUM(unit)) return false;
 
-    return true;
-}
 
 static esp_err_t     ret;
 static uint32_t     ret_num = 0;
@@ -192,63 +185,4 @@ void s4(void)
 {
     printf("calling adc_digi_start() \n");
     adc_digi_start();
-}
-
-void s5(void)
-{
-
-    for (int j=0; j<2; j++) 
-    {
-        printf("calling adc_digi_read_bytes() \n");
-        ret = adc_digi_read_bytes(result, TIMES, &ret_num, ADC_MAX_DELAY);
-        if (ret == ESP_OK || ret == ESP_ERR_INVALID_STATE) {
-            if (ret == ESP_ERR_INVALID_STATE) {
-                printf("ret = ESP_ERR_INVALID_STATE \n");
-                /**
-                 * @note 1
-                 * Issue:
-                 * As an example, we simply print the result out, which is super slow. Therefore the conversion is too
-                 * fast for the task to handle. In this condition, some conversion results lost.
-                 *
-                 * Reason:
-                 * When this error occurs, you will usually see the task watchdog timeout issue also.
-                 * Because the conversion is too fast, whereas the task calling `adc_digi_read_bytes` is slow.
-                 * So `adc_digi_read_bytes` will hardly block. Therefore Idle Task hardly has chance to run. In this
-                 * example, we add a `vTaskDelay(1)` below, to prevent the task watchdog timeout.
-                 *
-                 * Solution:
-                 * Either decrease the conversion speed, or increase the frequency you call `adc_digi_read_bytes`
-                 */
-            }
-
-            ESP_LOGI("TASK:", "ret is %x, ret_num is %d", ret, ret_num);
-            for (int i = 0; i < ret_num; i += ADC_RESULT_BYTE) {
-                adc_digi_output_data_t *p = (void*)&result[i];
-                if (ADC_CONV_MODE == ADC_CONV_BOTH_UNIT || ADC_CONV_MODE == ADC_CONV_ALTER_UNIT) {
-                    if (check_valid_data(p)) {
-                        printf("ad%dch%d: %5u\t", p->type2.unit+1, p->type2.channel, p->type2.data);
-                    } else {
-                        // abort();
-                        printf( "Invalid data [%d_%d_%x]\t", p->type2.unit+1, p->type2.channel, p->type2.data);
-                    }
-                }
-
-            }
-            printf("\n");
-            //See `note 1`
-            vTaskDelay(40);
-        } else if (ret == ESP_ERR_TIMEOUT) {
-            /**
-             * ``ESP_ERR_TIMEOUT``: If ADC conversion is not finished until Timeout, you'll get this return error.
-             * Here we set Timeout ``portMAX_DELAY``, so you'll never reach this branch.
-             */
-            printf( "No data, increase timeout or reduce conv_num_each_intr \n");
-            vTaskDelay(1000);
-        }
-
-    }
-
-    // adc_digi_stop();
-    // ret = adc_digi_deinitialize();
-    assert(ret == ESP_OK);
 }
