@@ -11,8 +11,8 @@
 #include "py/obj.h"
 #include "py/runtime.h"
 
-void s2(void);
-void s3(void); //  call_adc_digi_controller_configure
+void s2(uint32_t max_store_buf_size, uint32_t conv_num_each_intr ) ;
+void s3(uint32_t chCnt, uint32_t grpNum, uint32_t freq) ; //  call_adc_digi_controller_configure
 void s4(void);
 // void s5(void);
 
@@ -27,15 +27,25 @@ void s4(void);
 
 // call_adc_digi_initialize
 // buffer大小（不知道是哪里）   每次产生中断前的转换次数（重要）
-STATIC mp_obj_t dmaadc_s2() {
-    s2();
+STATIC mp_obj_t dmaadc_s2( 
+    mp_obj_t bufsize_obj, mp_obj_t conv_num_each_intr_obj
+) {
+    uint32_t  bufsize = mp_obj_get_int (bufsize_obj) ;
+    uint32_t  conv_num_each_intr = mp_obj_get_int (conv_num_each_intr_obj) ;
+    
+    printf("s2() bufsize=%u conv_num_each_intr=%u \n", bufsize, conv_num_each_intr);
+    s2( bufsize, conv_num_each_intr);
     return mp_obj_new_int(0);
 };
 
 // call_adc_digi_controller_configure
 // 频率   转换次数限制及其使能   样式表
-STATIC mp_obj_t dmaadc_s3() {
-    s3();   
+STATIC mp_obj_t dmaadc_s3( mp_obj_t chCnt_obj, mp_obj_t grpNum_obj,  mp_obj_t freq_obj ) {
+    uint32_t  chCnt = mp_obj_get_int (chCnt_obj) ;
+    uint32_t  grpNum = mp_obj_get_int (grpNum_obj) ;
+    uint32_t  freq = mp_obj_get_int (freq_obj) ;
+    printf("s3() chCnt=%u grpNum=%u freq=%u \n", chCnt, grpNum, freq);
+    s3(  chCnt , grpNum , freq );   
     return mp_obj_new_int(0);
 };
 STATIC mp_obj_t dmaadc_s4() {
@@ -50,8 +60,8 @@ STATIC mp_obj_t dmaadc_s4() {
 
 
 // STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s1_obj, dmaadc_s1);
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s2_obj, dmaadc_s2);
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s3_obj, dmaadc_s3);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(dmaadc_s2_obj, dmaadc_s2);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(dmaadc_s3_obj, dmaadc_s3);
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s4_obj, dmaadc_s4);
 // STATIC MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_s5_obj, dmaadc_s5);
 
@@ -88,7 +98,6 @@ MP_REGISTER_MODULE(MP_QSTR_dmaadc, dmaadc_user_cmodule);
 #include "freertos/semphr.h"
 #include "driver/adc.h"
 
-#define TIMES              256
 #define GET_UNIT(x)        ((x>>3) & 0x1)
 
 
@@ -123,9 +132,9 @@ static void call_adc_digi_initialize(
     ESP_ERROR_CHECK(  adc_digi_initialize(&adc_dma_config));
 }
 
-// static void call_adc_digi_controller_configure( bool  conv_limit_en, uint32_t  conv_limit_num, adc_channel_t *  channel, uint8_t channel_num );
 
 static void call_adc_digi_controller_configure(    // s3()
+    uint32_t   freq, 
     bool  conv_limit_en, 
     uint32_t  conv_limit_num, // 例默认250，未使能
     adc_channel_t *  channel, 
@@ -135,7 +144,7 @@ static void call_adc_digi_controller_configure(    // s3()
     adc_digi_configuration_t   dig_cfg = {
         .conv_limit_en = conv_limit_en,
         .conv_limit_num = conv_limit_num,
-        .sample_freq_hz = 10 * 1000,
+        .sample_freq_hz = freq,
         .conv_mode = ADC_CONV_MODE,
         .format = ADC_OUTPUT_TYPE,
     };
@@ -164,17 +173,18 @@ static void call_adc_digi_controller_configure(    // s3()
 
 
 
-void s2(void)
+void s2( uint32_t max_store_buf_size, uint32_t conv_num_each_intr )
 {
     printf("call_adc_digi_initialize() \n");
-    call_adc_digi_initialize(1024, TIMES, adc1_chan_mask, adc2_chan_mask );
+    call_adc_digi_initialize(max_store_buf_size,  conv_num_each_intr,  adc1_chan_mask, adc2_chan_mask );
+    // NOTE conv_num_each_intr对 AD的DMA_CONF里的 EOF_NUM 有影响，buf_size没影响。似乎最终得到的 EOF_NUM 是 conv_num_each_intr 的 1/4
 }
 
-void s3(void)
+void s3(uint32_t chCnt, uint32_t grpNum, uint32_t freq)
 {
     printf("call_adc_digi_controller_configure \n");
     call_adc_digi_controller_configure (
-        ADC_CONV_LIMIT_EN, 250, channel,   sizeof(channel) / sizeof(adc_channel_t) 
+        freq,  ADC_CONV_LIMIT_EN,   chCnt * grpNum,    channel,   sizeof(channel) / sizeof(adc_channel_t) 
     );
 }
 
