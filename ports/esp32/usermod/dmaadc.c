@@ -13,24 +13,30 @@
 
 void s1(void);
 void s2(void);
-void s3(void);
+void s3(void); //  call_adc_digi_controller_configure
 void s4(void);
 // void s5(void);
 
 STATIC mp_obj_t dmaadc_s1(/*mp_obj_t a_obj, mp_obj_t b_obj*/) {
     // int a = mp_obj_get_int(a_obj);
     // int b = mp_obj_get_int(b_obj);
-    s1();
+    s1(); // memset()
     // return mp_obj_new_int(a + b);
     return mp_obj_new_int(0);
 };
 
+
+// call_adc_digi_initialize
+// buffer大小（不知道是哪里）   每次产生中断前的转换次数（重要）
 STATIC mp_obj_t dmaadc_s2() {
     s2();
     return mp_obj_new_int(0);
 };
+
+// call_adc_digi_controller_configure
+// 频率   转换次数限制及其使能   样式表
 STATIC mp_obj_t dmaadc_s3() {
-    s3();
+    s3();   
     return mp_obj_new_int(0);
 };
 STATIC mp_obj_t dmaadc_s4() {
@@ -96,9 +102,9 @@ MP_REGISTER_MODULE(MP_QSTR_dmaadc, dmaadc_user_cmodule);
 
 
 ; ;
-static uint16_t adc1_chan_mask = BIT(2) | BIT(3);
-static uint16_t adc2_chan_mask = 0;
-static adc_channel_t        channel[2] = {ADC1_CHANNEL_2, ADC1_CHANNEL_3};
+static uint16_t adc1_chan_mask = BIT(0)| BIT(1) | BIT(2) | BIT(3) | BIT(4) ;
+static uint16_t adc2_chan_mask = 0; // 用了可能导致wifi冲突。可以后面在wifi启动之后再用它
+static adc_channel_t        channel[5] = {ADC1_CHANNEL_0, ADC1_CHANNEL_1, ADC1_CHANNEL_2, ADC1_CHANNEL_3 , ADC1_CHANNEL_4};
 
 
 
@@ -120,9 +126,9 @@ static void call_adc_digi_initialize(
 
 // static void call_adc_digi_controller_configure( bool  conv_limit_en, uint32_t  conv_limit_num, adc_channel_t *  channel, uint8_t channel_num );
 
-static void call_adc_digi_controller_configure(
+static void call_adc_digi_controller_configure(    // s3()
     bool  conv_limit_en, 
-    uint32_t  conv_limit_num, // 例默认250
+    uint32_t  conv_limit_num, // 例默认250，未使能
     adc_channel_t *  channel, 
     uint8_t channel_num
 )
