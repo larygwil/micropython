@@ -103,7 +103,7 @@ MP_REGISTER_MODULE(MP_QSTR_dmaadc, dmaadc_user_cmodule);
 ; ;
 static uint16_t adc1_chan_mask = BIT(0)| BIT(1) | BIT(2) | BIT(3) | BIT(4) ;
 static uint16_t adc2_chan_mask = 0; // 用了可能导致wifi冲突。可以后面在wifi启动之后再用它
-static adc_channel_t        channel[5] = {ADC1_CHANNEL_0, ADC1_CHANNEL_1, ADC1_CHANNEL_2, ADC1_CHANNEL_3 , ADC1_CHANNEL_4};
+static adc_channel_t        channel[6] = {ADC1_CHANNEL_0, ADC1_CHANNEL_1, ADC1_CHANNEL_2, ADC1_CHANNEL_3 , ADC1_CHANNEL_4, ADC1_CHANNEL_2};
 
 
 
