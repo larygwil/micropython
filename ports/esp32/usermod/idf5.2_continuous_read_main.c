@@ -4,6 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
+/*
+  针对ESP32C3修改
+  例子默认原为IO2 和 IO3 作 ADC 共2通道数据 要改
+  衰减需要改成11才能达到2.5V
+  ADC1 共有5个通道 (ADC_UNIT_1 下的 ADC_CHANNEL_0 ~ ADC_CHANNEL_4)
+  ADC2 共有1个通道。用WIFI时可能无法用。最近版IDF默认已禁用，想用要特别开启
+*/
+
 #include <string.h>
 #include <stdio.h>
 #include "sdkconfig.h"
@@ -13,6 +22,7 @@
 #include "freertos/semphr.h"
 #include "esp_adc/adc_continuous.h"
 
+// ADC_UNIT_1 下有 ADC_CHANNEL_0 ~ ADC_CHANNEL_4 共5个通道
 #define EXAMPLE_ADC_UNIT                    ADC_UNIT_1
 #define _EXAMPLE_ADC_UNIT_STR(unit)         #unit
 #define EXAMPLE_ADC_UNIT_STR(unit)          _EXAMPLE_ADC_UNIT_STR(unit)
@@ -21,6 +31,7 @@
 #define EXAMPLE_ADC_ATTEN                   ADC_ATTEN_DB_12
 #define EXAMPLE_ADC_BIT_WIDTH               SOC_ADC_DIGI_MAX_BITWIDTH
 
+// type1不是esp32c3型号的，c3只有type2
 #define EXAMPLE_ADC_OUTPUT_TYPE             ADC_DIGI_OUTPUT_FORMAT_TYPE2
 #define EXAMPLE_ADC_GET_CHANNEL(p_data)     ((p_data)->type2.channel)
 #define EXAMPLE_ADC_GET_DATA(p_data)        ((p_data)->type2.data)
@@ -36,6 +47,7 @@ static adc_channel_t arr_channels[SOC_ADC_PATT_LEN_MAX] = {ADC_CHANNEL_0, ADC_CH
 static TaskHandle_t s_task_handle;
 static const char *TAG = "EXAMPLE";
 
+// 不知道干嘛的转换完成回调函数
 static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_continuous_evt_data_t *edata, void *user_data)
 {
     BaseType_t mustYield = pdFALSE;
@@ -52,7 +64,9 @@ static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num
 
     adc_continuous_handle_cfg_t adc_config = {
         .max_store_buf_size = 1024,
-        .conv_frame_size = EXAMPLE_READ_LEN,
+        
+        // This should be in multiples of SOC_ADC_DIGI_DATA_BYTES_PER_CONV (=4). 
+        .conv_frame_size = EXAMPLE_READ_LEN, 
     };
     ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_config, &handle));
 
@@ -80,11 +94,22 @@ static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num
     *out_handle = handle;
 }
 
+// 自己写的函数，用于看一些宏和数值到底是多少
+static void seeinfo()
+{
+    ESP_LOGI("seeinfo()", "SOC_ADC_CHANNEL_NUM(EXAMPLE_ADC_UNIT)=%d", SOC_ADC_CHANNEL_NUM(EXAMPLE_ADC_UNIT)); // 应该输出5
+    ESP_LOGI("seeinfo()", "SOC_ADC_DIGI_MAX_BITWIDTH=%d", SOC_ADC_DIGI_MAX_BITWIDTH); // 应该输出12
+    ESP_LOGI("seeinfo()", "SOC_ADC_DIGI_RESULT_BYTES=%d", SOC_ADC_DIGI_RESULT_BYTES); // 应该输出4
+    ESP_LOGI("seeinfo()", "SOC_ADC_PATT_LEN_MAX=%d", SOC_ADC_PATT_LEN_MAX); // 输出8
+}
+
 // 原本是 main() 中的，改为全局。它会在 continuous_adc_init() 里被赋值。不知道在stop和deinit后会不会被NULL回来，或许之后应该手动NULL
 static adc_continuous_handle_t handle = NULL;
 
 void app_main(void)
 {
+    seeinfo();
+    
     esp_err_t ret;
     uint32_t ret_num = 0;
     uint8_t result[EXAMPLE_READ_LEN] = {0};
