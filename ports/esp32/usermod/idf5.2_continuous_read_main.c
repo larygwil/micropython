@@ -38,6 +38,9 @@
 
 #define EXAMPLE_READ_LEN                    256
 
+// 原本为 adc_config 里硬编码的数 （ continuous_adc_init() 里用） 改为变量
+static uint32_t buf_size = 1024;
+
 // 自加。原本是 continuous_adc_init() 的一个参数
 static uint8_t channel_num = 5; 
 
@@ -63,7 +66,7 @@ static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num
     adc_continuous_handle_t handle = NULL;
 
     adc_continuous_handle_cfg_t adc_config = {
-        .max_store_buf_size = 1024,
+        .max_store_buf_size = buf_size,
         
         // This should be in multiples of SOC_ADC_DIGI_DATA_BYTES_PER_CONV (=4). 
         .conv_frame_size = EXAMPLE_READ_LEN, 
