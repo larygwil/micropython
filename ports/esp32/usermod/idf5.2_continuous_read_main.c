@@ -36,7 +36,8 @@
 #define EXAMPLE_ADC_GET_CHANNEL(p_data)     ((p_data)->type2.channel)
 #define EXAMPLE_ADC_GET_DATA(p_data)        ((p_data)->type2.data)
 
-#define EXAMPLE_READ_LEN                    256
+// 原本为宏 EXAMPLE_READ_LEN (=256) 改为变量
+static uint32_t read_len = 256;
 
 // 原本为 adc_config 里硬编码的数 （ continuous_adc_init() 里用） 改为变量
 static uint32_t buf_size = 1024;
@@ -69,7 +70,7 @@ static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num
         .max_store_buf_size = buf_size,
         
         // This should be in multiples of SOC_ADC_DIGI_DATA_BYTES_PER_CONV (=4). 
-        .conv_frame_size = EXAMPLE_READ_LEN, 
+        .conv_frame_size = read_len, 
     };
     ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_config, &handle));
 
@@ -115,8 +116,8 @@ void app_main(void)
     
     esp_err_t ret;
     uint32_t ret_num = 0;
-    uint8_t result[EXAMPLE_READ_LEN] = {0};
-    memset(result, 0xcc, EXAMPLE_READ_LEN);
+    uint8_t result[read_len];
+    memset(result, 0xcc, read_len);
 
     s_task_handle = xTaskGetCurrentTaskHandle();
 
@@ -144,7 +145,7 @@ void app_main(void)
         char unit[] = EXAMPLE_ADC_UNIT_STR(EXAMPLE_ADC_UNIT);
 
         while (1) {
-            ret = adc_continuous_read(handle, result, EXAMPLE_READ_LEN, &ret_num, 0);
+            ret = adc_continuous_read(handle, result, read_len, &ret_num, 0);
             if (ret == ESP_OK) {
                 ESP_LOGI("TASK", "ret is %x, ret_num is %"PRIu32" bytes", ret, ret_num);
                 for (int i = 0; i < ret_num; i += SOC_ADC_DIGI_RESULT_BYTES) {
@@ -165,7 +166,7 @@ void app_main(void)
                  */
                 vTaskDelay(1);
             } else if (ret == ESP_ERR_TIMEOUT) {
-                //We try to read `EXAMPLE_READ_LEN` until API returns timeout, which means there's no available data
+                //We try to read `read_len` until API returns timeout, which means there's no available data
                 break;
             }
         }
