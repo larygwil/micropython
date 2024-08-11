@@ -51,6 +51,10 @@ static uint8_t channel_num = 5;
 // 原来的 channel 数组改名为 arr_channels
 static adc_channel_t arr_channels[SOC_ADC_PATT_LEN_MAX] = {ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2, ADC_CHANNEL_3, ADC_CHANNEL_4};
 
+
+// 原本是 main() 中的，改为全局。它会在 continuous_adc_init() 里被赋值。不知道在stop和deinit后会不会被NULL回来，或许之后应该手动NULL
+static adc_continuous_handle_t handle = NULL;
+
 static TaskHandle_t s_task_handle;
 static const char *TAG = "EXAMPLE";
 
@@ -110,8 +114,6 @@ static void seeinfo()
     ESP_LOGI("seeinfo()", "SOC_ADC_PATT_LEN_MAX=%d", SOC_ADC_PATT_LEN_MAX); // 输出8
 }
 
-// 原本是 main() 中的，改为全局。它会在 continuous_adc_init() 里被赋值。不知道在stop和deinit后会不会被NULL回来，或许之后应该手动NULL
-static adc_continuous_handle_t handle = NULL;
 
 void app_main(void)
 {
