@@ -17,7 +17,8 @@
 #define _EXAMPLE_ADC_UNIT_STR(unit)         #unit
 #define EXAMPLE_ADC_UNIT_STR(unit)          _EXAMPLE_ADC_UNIT_STR(unit)
 #define EXAMPLE_ADC_CONV_MODE               ADC_CONV_SINGLE_UNIT_1
-#define EXAMPLE_ADC_ATTEN                   ADC_ATTEN_DB_0
+// 衰减（ATTEN）从0改成12可测2.5V （12就是11）
+#define EXAMPLE_ADC_ATTEN                   ADC_ATTEN_DB_12
 #define EXAMPLE_ADC_BIT_WIDTH               SOC_ADC_DIGI_MAX_BITWIDTH
 
 #define EXAMPLE_ADC_OUTPUT_TYPE             ADC_DIGI_OUTPUT_FORMAT_TYPE2
