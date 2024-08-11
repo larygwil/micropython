@@ -42,6 +42,9 @@ static uint32_t read_len = 256;
 // 原本为 adc_config 里硬编码的数 （ continuous_adc_init() 里用） 改为变量
 static uint32_t buf_size = 1024;
 
+// 原本为 dig_cfg 里硬编码的数 （ continuous_adc_init() 里用） 改为变量
+static uint32_t sample_freq = 20*1000;
+
 // 自加。原本是 continuous_adc_init() 的一个参数
 static uint8_t channel_num = 5; 
 
@@ -75,7 +78,7 @@ static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num
     ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_config, &handle));
 
     adc_continuous_config_t dig_cfg = {
-        .sample_freq_hz = 20 * 1000,
+        .sample_freq_hz = sample_freq,
         .conv_mode = EXAMPLE_ADC_CONV_MODE,
         .format = EXAMPLE_ADC_OUTPUT_TYPE,
     };
