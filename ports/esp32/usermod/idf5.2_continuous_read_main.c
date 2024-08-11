@@ -80,6 +80,9 @@ static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num
     *out_handle = handle;
 }
 
+// 原本是 main() 中的，改为全局。它会在 continuous_adc_init() 里被赋值。不知道在stop和deinit后会不会被NULL回来，或许之后应该手动NULL
+static adc_continuous_handle_t handle = NULL;
+
 void app_main(void)
 {
     esp_err_t ret;
@@ -89,7 +92,6 @@ void app_main(void)
 
     s_task_handle = xTaskGetCurrentTaskHandle();
 
-    adc_continuous_handle_t handle = NULL;
     
     continuous_adc_init(arr_channels, channel_num, &handle);
 
