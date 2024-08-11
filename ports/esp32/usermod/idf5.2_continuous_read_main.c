@@ -27,7 +27,11 @@
 
 #define EXAMPLE_READ_LEN                    256
 
-static adc_channel_t channel[2] = {ADC_CHANNEL_2, ADC_CHANNEL_3};
+// 自加。原本是 continuous_adc_init() 的一个参数
+static uint8_t channel_num = 5; 
+
+// 原来的 channel 数组改名为 arr_channels
+static adc_channel_t arr_channels[SOC_ADC_PATT_LEN_MAX] = {ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2, ADC_CHANNEL_3, ADC_CHANNEL_4};
 
 static TaskHandle_t s_task_handle;
 static const char *TAG = "EXAMPLE";
@@ -41,7 +45,8 @@ static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_c
     return (mustYield == pdTRUE);
 }
 
-static void continuous_adc_init(adc_channel_t *channel, uint8_t channel_num, adc_continuous_handle_t *out_handle)
+// 初始化连续采样
+static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num, adc_continuous_handle_t *out_handle)
 {
     adc_continuous_handle_t handle = NULL;
 
@@ -61,7 +66,7 @@ static void continuous_adc_init(adc_channel_t *channel, uint8_t channel_num, adc
     dig_cfg.pattern_num = channel_num;
     for (int i = 0; i < channel_num; i++) {
         adc_pattern[i].atten = EXAMPLE_ADC_ATTEN;
-        adc_pattern[i].channel = channel[i] & 0x7;
+        adc_pattern[i].channel = arr_channels[i] & 0x7;
         adc_pattern[i].unit = EXAMPLE_ADC_UNIT;
         adc_pattern[i].bit_width = EXAMPLE_ADC_BIT_WIDTH;
 
@@ -85,7 +90,8 @@ void app_main(void)
     s_task_handle = xTaskGetCurrentTaskHandle();
 
     adc_continuous_handle_t handle = NULL;
-    continuous_adc_init(channel, sizeof(channel) / sizeof(adc_channel_t), &handle);
+    
+    continuous_adc_init(arr_channels, channel_num, &handle);
 
     adc_continuous_evt_cbs_t cbs = {
         .on_conv_done = s_conv_done_cb,
