@@ -46,7 +46,7 @@ static uint32_t buf_size = 1024;
 static uint32_t sample_freq = 20*1000;
 
 // 自加。原本是 continuous_adc_init() 的一个参数
-static uint8_t channel_num = 5; 
+static uint32_t channel_num = 5; 
 
 // 原来的 channel 数组改名为 arr_channels
 static adc_channel_t arr_channels[SOC_ADC_PATT_LEN_MAX] = {ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2, ADC_CHANNEL_3, ADC_CHANNEL_4};
@@ -114,7 +114,7 @@ static void seeinfo()
     ESP_LOGI("seeinfo()", "SOC_ADC_PATT_LEN_MAX=%d", SOC_ADC_PATT_LEN_MAX); // 输出8
 }
 
-
+#ifdef NNNNNNNNNNNNNNNNNNNNNNNN
 void app_main(void)
 {
     seeinfo();
@@ -180,3 +180,4 @@ void app_main(void)
     ESP_ERROR_CHECK(adc_continuous_stop(handle));
     ESP_ERROR_CHECK(adc_continuous_deinit(handle));
 }
+#endif
