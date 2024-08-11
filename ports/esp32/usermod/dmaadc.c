@@ -61,6 +61,42 @@ static mp_obj_t dmaadc_see_arrchannels()
     return mp_obj_new_int(0);
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_see_arrchannels_obj, dmaadc_see_arrchannels);
+
+//------------------------------------------------------------------------
+
+static mp_obj_t dmaadc_continuous_adc_init()
+{
+    continuous_adc_init(arr_channels, channel_num, &handle);
+    return mp_obj_new_int(0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_continuous_adc_init_obj, dmaadc_continuous_adc_init);
+
+//------------------------------------------------------------------------
+
+static mp_obj_t dmaadc_adc_continuous_start()
+{
+    adc_continuous_start(handle);
+    return mp_obj_new_int(0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_start_obj, dmaadc_adc_continuous_start);
+
+//------------------------------------------------------------------------
+
+static mp_obj_t dmaadc_adc_continuous_stop()
+{
+    adc_continuous_stop(handle);
+    return mp_obj_new_int(0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_stop_obj, dmaadc_adc_continuous_stop);
+
+//------------------------------------------------------------------------
+
+static mp_obj_t dmaadc_adc_continuous_deinit()
+{
+    adc_continuous_deinit(handle);
+    return mp_obj_new_int(0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_deinit_obj, dmaadc_adc_continuous_deinit);
 //==========================================================================
 
 static const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
@@ -71,6 +107,11 @@ static const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     
     { MP_ROM_QSTR(MP_QSTR_set_arrchannels), MP_ROM_PTR(&dmaadc_set_arrchannels_obj) },
     { MP_ROM_QSTR(MP_QSTR_see_arrchannels), MP_ROM_PTR(&dmaadc_see_arrchannels_obj) },
+    
+    { MP_ROM_QSTR(MP_QSTR_continuous_adc_init), MP_ROM_PTR(&dmaadc_continuous_adc_init_obj) },
+    { MP_ROM_QSTR(MP_QSTR_adc_continuous_start), MP_ROM_PTR(&dmaadc_adc_continuous_start_obj) },
+    { MP_ROM_QSTR(MP_QSTR_adc_continuous_stop), MP_ROM_PTR(&dmaadc_adc_continuous_stop_obj) },
+    { MP_ROM_QSTR(MP_QSTR_adc_continuous_deinit), MP_ROM_PTR(&dmaadc_adc_continuous_deinit_obj) },
 };
 static MP_DEFINE_CONST_DICT(dmaadc_module_globals, dmaadc_module_globals_table);
 
