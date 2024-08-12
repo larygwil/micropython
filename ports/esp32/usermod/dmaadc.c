@@ -75,7 +75,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_continuous_adc_init_obj, dmaadc_continuo
 
 static mp_obj_t dmaadc_adc_continuous_start()
 {
-    adc_continuous_start(handle);
+    ESP_ERROR_CHECK( adc_continuous_start(handle) );
     return mp_obj_new_int(0);
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_start_obj, dmaadc_adc_continuous_start);
@@ -84,7 +84,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_start_obj, dmaadc_adc_con
 
 static mp_obj_t dmaadc_adc_continuous_stop()
 {
-    adc_continuous_stop(handle);
+    ESP_ERROR_CHECK( adc_continuous_stop(handle) );
     return mp_obj_new_int(0);
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_stop_obj, dmaadc_adc_continuous_stop);
@@ -93,7 +93,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_stop_obj, dmaadc_adc_cont
 
 static mp_obj_t dmaadc_adc_continuous_deinit()
 {
-    adc_continuous_deinit(handle);
+    ESP_ERROR_CHECK( adc_continuous_deinit(handle) );
     return mp_obj_new_int(0);
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_deinit_obj, dmaadc_adc_continuous_deinit);
