@@ -68,6 +68,12 @@ static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_c
     return (mustYield == pdTRUE);
 }
 
+// 原本定义在 main() 里，改为全局
+static adc_continuous_evt_cbs_t cbs = {
+    .on_conv_done = s_conv_done_cb,
+};
+
+
 // 初始化连续采样
 static void continuous_adc_init(adc_channel_t *arr_channels, uint8_t channel_num, adc_continuous_handle_t *out_handle)
 {
@@ -126,9 +132,6 @@ void app_main(void)
 
     continuous_adc_init(arr_channels, channel_num, &handle);
 
-    adc_continuous_evt_cbs_t cbs = {
-        .on_conv_done = s_conv_done_cb,
-    };
     ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(handle, &cbs, NULL));
     ESP_ERROR_CHECK(adc_continuous_start(handle));
 
