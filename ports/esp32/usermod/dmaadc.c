@@ -22,7 +22,11 @@ static mp_obj_t dmaadc_init1(
     buf_size = mp_obj_get_int(args[1]);
     sample_freq = mp_obj_get_int(args[2]);
     channel_num = mp_obj_get_int(args[3]);
+    
     mp_printf(&mp_plat_print, "read_len=%ld buf_size=%ld sample_freq=%ld channel_num=%ld\n", read_len, buf_size, sample_freq, channel_num);
+    
+    s_task_handle = xTaskGetCurrentTaskHandle();
+    
     return mp_obj_new_int(0);
 };
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(dmaadc_init1_obj, 4, 4, dmaadc_init1);

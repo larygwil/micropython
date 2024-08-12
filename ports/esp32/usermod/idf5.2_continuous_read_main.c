@@ -124,9 +124,6 @@ void app_main(void)
     uint8_t result[read_len];
     memset(result, 0xcc, read_len);
 
-    s_task_handle = xTaskGetCurrentTaskHandle();
-
-    
     continuous_adc_init(arr_channels, channel_num, &handle);
 
     adc_continuous_evt_cbs_t cbs = {
