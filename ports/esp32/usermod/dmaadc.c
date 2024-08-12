@@ -77,6 +77,16 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_continuous_adc_init_obj, dmaadc_continuo
 
 //------------------------------------------------------------------------
 
+static mp_obj_t dmaadc_adc_continuous_register_event_callbacks()
+{
+
+    ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(handle, &cbs, NULL));
+    return mp_obj_new_int(0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_register_event_callbacks_obj, dmaadc_adc_continuous_register_event_callbacks);
+
+//------------------------------------------------------------------------
+
 static mp_obj_t dmaadc_adc_continuous_start()
 {
     ESP_ERROR_CHECK( adc_continuous_start(handle) );
@@ -113,6 +123,7 @@ static const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_see_arrchannels), MP_ROM_PTR(&dmaadc_see_arrchannels_obj) },
     
     { MP_ROM_QSTR(MP_QSTR_continuous_adc_init), MP_ROM_PTR(&dmaadc_continuous_adc_init_obj) },
+    { MP_ROM_QSTR(MP_QSTR_adc_continuous_register_event_callbacks), MP_ROM_PTR(&dmaadc_adc_continuous_register_event_callbacks_obj) },
     { MP_ROM_QSTR(MP_QSTR_adc_continuous_start), MP_ROM_PTR(&dmaadc_adc_continuous_start_obj) },
     { MP_ROM_QSTR(MP_QSTR_adc_continuous_stop), MP_ROM_PTR(&dmaadc_adc_continuous_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_adc_continuous_deinit), MP_ROM_PTR(&dmaadc_adc_continuous_deinit_obj) },
