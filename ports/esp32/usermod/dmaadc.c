@@ -1,5 +1,5 @@
 
-#include "idf5.2_continuous_read_main.c"
+
 
 // Include MicroPython API.
 #include "py/runtime.h"
@@ -7,6 +7,7 @@
 // Used to get the time in the Timer class example.
 #include "py/mphal.h"
 
+#include "idf5.2_continuous_read_main.c"
 
 static mp_obj_t dmaadc_init1( 
     mp_uint_t n_args, const mp_obj_t *args
