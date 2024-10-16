@@ -35,6 +35,15 @@
 #include "driver/ledc.h"
 #include "esp_err.h"
 #include "soc/gpio_sig_map.h"
+#include "driver/gpio.h"
+
+#include "esp_sleep.h"
+#include "hal/clk_tree_hal.h"
+#include "hal/clk_tree_ll.h"
+#include "soc/rtc.h"
+#include "hal/assert.h"
+#include "hal/log.h"
+
 
 #define PWM_DBG(...)
 // #define PWM_DBG(...) mp_printf(&mp_plat_print, __VA_ARGS__); mp_printf(&mp_plat_print, "\n");
@@ -98,10 +107,6 @@ static ledc_timer_config_t timers[PWM_TIMER_MAX];
 // How much to shift from the HIGHEST_PWM_RES duty resolution to the user interface duty resolution UI_RES_16_BIT
 #define UI_RES_SHIFT (UI_RES_16_BIT - HIGHEST_PWM_RES) // 0 for ESP32, 2 for S2, S3, C3
 
-#if SOC_LEDC_SUPPORT_REF_TICK
-// If the PWM frequency is less than EMPIRIC_FREQ, then LEDC_REF_CLK_HZ(1 MHz) source is used, else LEDC_APB_CLK_HZ(80 MHz) source is used
-#define EMPIRIC_FREQ (10) // Hz
-#endif
 
 // Config of timer upon which we run all PWM'ed GPIO pins
 static bool pwm_inited = false;
@@ -210,12 +215,8 @@ static void configure_channel(machine_pwm_obj_t *self) {
 static void set_freq(machine_pwm_obj_t *self, unsigned int freq, ledc_timer_config_t *timer) {
     if (freq != timer->freq_hz) {
         // Find the highest bit resolution for the requested frequency
-        unsigned int i = APB_CLK_FREQ; // 80 MHz
-        #if SOC_LEDC_SUPPORT_REF_TICK
-        if (freq < EMPIRIC_FREQ) {
-            i = REF_CLK_FREQ; // 1 MHz
-        }
-        #endif
+        unsigned int i = SOC_CLK_RC_FAST_FREQ_APPROX; // 17.5 MHz 约
+
 
         int divider = (i + freq / 2) / freq; // rounded
         if (divider == 0) {
@@ -241,12 +242,8 @@ static void set_freq(machine_pwm_obj_t *self, unsigned int freq, ledc_timer_conf
         // Configure the new resolution and frequency
         timer->duty_resolution = res;
         timer->freq_hz = freq;
-        timer->clk_cfg = LEDC_USE_APB_CLK;
-        #if SOC_LEDC_SUPPORT_REF_TICK
-        if (freq < EMPIRIC_FREQ) {
-            timer->clk_cfg = LEDC_USE_REF_TICK;
-        }
-        #endif
+        timer->clk_cfg = LEDC_USE_RC_FAST_CLK;
+
 
         // Set frequency
         esp_err_t err = ledc_timer_config(timer);
