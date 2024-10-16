@@ -28,7 +28,7 @@ static mp_obj_t dmaadc_init1(
     
     s_task_handle = xTaskGetCurrentTaskHandle();
     
-    return mp_obj_new_int(0);
+    return mp_const_none;
 };
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(dmaadc_init1_obj, 4, 4, dmaadc_init1);
 // 用 MP_DEFINE_CONST_FUN_OBJ_X （X=0~3）来设置参数个数，最大3。4或以上要用另一个
@@ -38,7 +38,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(dmaadc_init1_obj, 4, 4, dmaadc_init1)
 static mp_obj_t dmaadc_see_init1()
 {
     mp_printf(&mp_plat_print, "read_len=%ld buf_size=%ld sample_freq=%ld channel_num=%ld\n", read_len, buf_size, sample_freq, channel_num);
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_see_init1_obj, dmaadc_see_init1);
 
@@ -51,7 +51,7 @@ static mp_obj_t dmaadc_set_arrchannels( mp_uint_t n_args, const mp_obj_t *args )
         adc_channel_t ch = chTable [ mp_obj_get_int( args[i] ) ];
         arr_channels[i] = ch;
     }
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(dmaadc_set_arrchannels_obj, 1, SOC_ADC_PATT_LEN_MAX, dmaadc_set_arrchannels);
 //------------------------------------------------------------------------
@@ -63,7 +63,7 @@ static mp_obj_t dmaadc_see_arrchannels()
          mp_printf(&mp_plat_print, "n:%d ch_enum:%d\n", (i+1), (int)arr_channels[i] );
     }
     // mp_printf(&mp_plat_print, "\n", read_len, buf_size, sample_freq, channel_num);
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_see_arrchannels_obj, dmaadc_see_arrchannels);
 
@@ -72,7 +72,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_see_arrchannels_obj, dmaadc_see_arrchann
 static mp_obj_t dmaadc_continuous_adc_init()
 {
     continuous_adc_init(arr_channels, channel_num, &handle);
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_continuous_adc_init_obj, dmaadc_continuous_adc_init);
 
@@ -82,7 +82,7 @@ static mp_obj_t dmaadc_adc_continuous_register_event_callbacks()
 {
 
     ESP_ERROR_CHECK(adc_continuous_register_event_callbacks(handle, &cbs, NULL));
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_register_event_callbacks_obj, dmaadc_adc_continuous_register_event_callbacks);
 
@@ -91,7 +91,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_register_event_callbacks_
 static mp_obj_t dmaadc_adc_continuous_start()
 {
     ESP_ERROR_CHECK( adc_continuous_start(handle) );
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_start_obj, dmaadc_adc_continuous_start);
 
@@ -100,7 +100,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_start_obj, dmaadc_adc_con
 static mp_obj_t dmaadc_adc_continuous_stop()
 {
     ESP_ERROR_CHECK( adc_continuous_stop(handle) );
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_stop_obj, dmaadc_adc_continuous_stop);
 
@@ -109,7 +109,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_stop_obj, dmaadc_adc_cont
 static mp_obj_t dmaadc_adc_continuous_deinit()
 {
     ESP_ERROR_CHECK( adc_continuous_deinit(handle) );
-    return mp_obj_new_int(0);
+    return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_deinit_obj, dmaadc_adc_continuous_deinit);
 //==========================================================================
