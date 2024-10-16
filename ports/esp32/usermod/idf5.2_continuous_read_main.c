@@ -58,13 +58,34 @@ static adc_continuous_handle_t handle = NULL;
 static TaskHandle_t s_task_handle;
 static const char *TAG = "EXAMPLE";
 
+static uint32_t total_sample_cnt = 0;
+static uint32_t last_datasize = 0;
+static uint32_t last_dataaddr = 0;
 // 转换完成回调函数 
 static bool IRAM_ATTR s_conv_done_cb(adc_continuous_handle_t handle, const adc_continuous_evt_data_t *edata, void *user_data)
 {
+    // 自己添加
+    // 说明： main() 里是好像是先搬运一遍数据才解析，这里先尝试不搬运直接在原位置解析
+    uint32_t datasize = edata->size;
+    total_sample_cnt += datasize;
+    last_datasize = datasize;
+    // mp_printf(&mp_plat_print, "datasize: %ld\n", datasize);
+    
+    adc_digi_output_data_t *p = (adc_digi_output_data_t*) (edata->conv_frame_buffer) ;
+    last_dataaddr = (uint32_t) p ;
+    // for (int i = 0; i<3; i++) 
+    // {
+    //     uint32_t chan_num = EXAMPLE_ADC_GET_CHANNEL(p);
+    //     uint32_t data = EXAMPLE_ADC_GET_DATA(p);
+    //     mp_printf(&mp_plat_print, "    channel %ld : %ld\n", chan_num, data);
+    //     p++;
+    // } 
+    
+    // 结束自己添加
+    
     BaseType_t mustYield = pdFALSE;
     //Notify that ADC continuous driver has done enough number of conversions
     vTaskNotifyGiveFromISR(s_task_handle, &mustYield);
-
     return (mustYield == pdTRUE);
 }
 

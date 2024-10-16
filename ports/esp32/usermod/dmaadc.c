@@ -113,6 +113,20 @@ static mp_obj_t dmaadc_adc_continuous_deinit()
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_adc_continuous_deinit_obj, dmaadc_adc_continuous_deinit);
 //==========================================================================
+static mp_obj_t dmaadc_get_statis()
+{
+    uint32_t _total_sample_cnt = total_sample_cnt;
+    uint32_t _last_datasize = last_datasize;
+    uint32_t _last_dataaddr = last_dataaddr;
+    mp_obj_t result [] = {
+        mp_obj_new_int ( _total_sample_cnt ) , 
+        mp_obj_new_int ( _last_datasize ) , 
+        mp_obj_new_int ( _last_dataaddr )
+    };
+    return mp_obj_new_list(3, &result);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(dmaadc_get_statis_obj, dmaadc_get_statis);
+//==========================================================================
 
 static const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_dmaadc) },
@@ -128,6 +142,8 @@ static const mp_rom_map_elem_t dmaadc_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_adc_continuous_start), MP_ROM_PTR(&dmaadc_adc_continuous_start_obj) },
     { MP_ROM_QSTR(MP_QSTR_adc_continuous_stop), MP_ROM_PTR(&dmaadc_adc_continuous_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_adc_continuous_deinit), MP_ROM_PTR(&dmaadc_adc_continuous_deinit_obj) },
+    
+    { MP_ROM_QSTR(MP_QSTR_get_statis), MP_ROM_PTR(&dmaadc_get_statis_obj) },
 };
 static MP_DEFINE_CONST_DICT(dmaadc_module_globals, dmaadc_module_globals_table);
 
