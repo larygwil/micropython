@@ -13,6 +13,7 @@
 #include "soc/rtc.h"
 #include "hal/assert.h"
 #include "hal/log.h"
+#include "soc/clk_tree_defs.h"
 
 static mp_obj_t mypm_sleep_pd_config ( mp_obj_t domain_obj, mp_obj_t option_obj)
 {
@@ -171,6 +172,20 @@ static mp_obj_t mypm_set_bbpll_enabled(mp_obj_t en_obj)
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_set_bbpll_enabled_obj, mypm_set_bbpll_enabled);
 //---------------------------------------------
+void rtc_clk_bbpll_configure(rtc_xtal_freq_t xtal_freq, int pll_freq);
+// 这是来自 esp-idf/components/esp_hw_support/port/esp32c3/rtc_clk.c
+// 在IDF 5.2中还需要把上面这个文件的这个函数定义的static去掉
+
+// NOTE 改成320后wifi无法用
+static mp_obj_t mypm_bbpll_set_freq(mp_obj_t freq_obj)
+{
+    uint32_t freq = mp_obj_get_int(freq_obj);
+    // clk_ll_bbpll_set_freq_mhz(freq);
+    rtc_clk_bbpll_configure(clk_hal_xtal_get_freq_mhz() , freq );
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(mypm_bbpll_set_freq_obj, mypm_bbpll_set_freq);
+//---------------------------------------------
 static mp_obj_t mypm_set_rc_fast_enabled(mp_obj_t en_obj)
 {
     bool en = mp_obj_is_true(en_obj);
@@ -303,6 +318,12 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     
     // 启用/禁用 BBPLL
     { MP_ROM_QSTR(MP_QSTR_set_bbpll_enabled), MP_ROM_PTR(&mypm_set_bbpll_enabled_obj) },
+    
+    // 设置 BBPLL 频率 常数
+    { MP_ROM_QSTR(MP_QSTR_PLL_320M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_320M_FREQ_MHZ) },
+    { MP_ROM_QSTR(MP_QSTR_PLL_480M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_480M_FREQ_MHZ) },
+    // 设置 BBPLL 频率 函数
+    { MP_ROM_QSTR(MP_QSTR_bbpll_set_freq), MP_ROM_PTR(&mypm_bbpll_set_freq_obj) },
     
     // 启用/禁用 RC_FAST
     { MP_ROM_QSTR(MP_QSTR_set_rc_fast_enabled), MP_ROM_PTR(&mypm_set_rc_fast_enabled_obj) },
