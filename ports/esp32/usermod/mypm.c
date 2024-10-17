@@ -283,6 +283,14 @@ static mp_obj_t mypm_rc_slow_set_divider ( mp_obj_t divider_obj)
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_slow_set_divider_obj, mypm_rc_slow_set_divider);
+//--------------------------------------------------------------------
+static mp_obj_t mypm_cpu_set_divider ( mp_obj_t divider_obj)
+{
+    uint32_t divider = mp_obj_get_int(divider_obj);
+    clk_ll_cpu_set_divider(divider);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(mypm_cpu_set_divider_obj, mypm_cpu_set_divider);
 //========================================================
 
 // 所有函数要加进这里面
@@ -365,8 +373,8 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     // 设置 RC SLOW 分频数 
     { MP_ROM_QSTR(MP_QSTR_rc_slow_set_divider), MP_ROM_PTR(&mypm_rc_slow_set_divider_obj) },
     
-
-
+    // 设置 CPU 分频数
+    { MP_ROM_QSTR(MP_QSTR_cpu_set_divider), MP_ROM_PTR(&mypm_cpu_set_divider_obj) },
 };
 static MP_DEFINE_CONST_DICT(mypm_module_globals, mypm_module_globals_table);
 
