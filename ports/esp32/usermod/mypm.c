@@ -269,7 +269,8 @@ static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rtc_fast_set_src_obj, mypm_rtc_fast_set_sr
 static mp_obj_t mypm_rc_fast_set_divider ( mp_obj_t divider_obj)
 {
     uint32_t divider = mp_obj_get_int(divider_obj);
-    clk_ll_rc_fast_set_divider(divider);
+    // clk_ll_rc_fast_set_divider(divider);
+    rtc_clk_8m_divider_set(divider);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_fast_set_divider_obj, mypm_rc_fast_set_divider);
@@ -277,7 +278,8 @@ static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_fast_set_divider_obj, mypm_rc_fast_set_
 static mp_obj_t mypm_rc_slow_set_divider ( mp_obj_t divider_obj)
 {
     uint32_t divider = mp_obj_get_int(divider_obj);
-    clk_ll_rc_slow_set_divider(divider);
+    // clk_ll_rc_slow_set_divider(divider);
+    rtc_clk_divider_set(divider);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_slow_set_divider_obj, mypm_rc_slow_set_divider);
