@@ -75,6 +75,20 @@ static mp_obj_t mypm_deepsleep(mp_obj_t ms_obj)
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_deepsleep_obj, mypm_deepsleep);
 //--------------------------------------------
+static mp_obj_t mypm_sleep_cpu_retention(mp_obj_t en_obj)
+{
+    bool en = mp_obj_is_true(en_obj);
+    
+    esp_err_t ret;
+    if (en)
+        ret = esp_sleep_cpu_retention_init();
+    else
+        ret = esp_sleep_cpu_retention_deinit();
+    
+    return (ret == ESP_OK) ? mp_const_true : mp_const_false;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(mypm_sleep_cpu_retention_obj, mypm_sleep_cpu_retention);
+//--------------------------------------------
 static mp_obj_t mypm_clks_info()
 {
     soc_cpu_clk_src_t cpu_source = clk_ll_cpu_get_src();
@@ -282,6 +296,7 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     // lightsleep和deepsleep。原MPY已有在machine里，但自己搞个可能不一样。deepsleep后不reset不知能不能用
     { MP_ROM_QSTR(MP_QSTR_lightsleep), MP_ROM_PTR(&mypm_lightsleep_obj) },
     { MP_ROM_QSTR(MP_QSTR_deepsleep), MP_ROM_PTR(&mypm_deepsleep_obj) },
+    { MP_ROM_QSTR(MP_QSTR_sleep_cpu_retention), MP_ROM_PTR(&mypm_sleep_cpu_retention_obj) },
     
     // 打印时钟和频率相关信息
     { MP_ROM_QSTR(MP_QSTR_clks_info), MP_ROM_PTR(&mypm_clks_info_obj) },
