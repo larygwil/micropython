@@ -36,12 +36,13 @@
 #include "py/mphal.h"
 #include "uart.h"
 
-#if SOC_UART_SUPPORT_XTAL_CLK
-// Works independently of APB frequency, on ESP32C3, ESP32S3.
-#define UART_SOURCE_CLK UART_SCLK_XTAL
-#else
-#define UART_SOURCE_CLK UART_SCLK_DEFAULT
-#endif
+// #if SOC_UART_SUPPORT_XTAL_CLK
+// // Works independently of APB frequency, on ESP32C3, ESP32S3.
+// #define UART_SOURCE_CLK UART_SCLK_XTAL
+// #else
+// #define UART_SOURCE_CLK UART_SCLK_DEFAULT
+// #endif
+#define UART_SOURCE_CLK UART_SCLK_RTC
 
 #define UART_INV_TX UART_SIGNAL_TXD_INV
 #define UART_INV_RX UART_SIGNAL_RXD_INV
