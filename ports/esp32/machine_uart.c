@@ -36,13 +36,13 @@
 #include "py/mphal.h"
 #include "uart.h"
 
-// #if SOC_UART_SUPPORT_XTAL_CLK
-// // Works independently of APB frequency, on ESP32C3, ESP32S3.
-// #define UART_SOURCE_CLK UART_SCLK_XTAL
-// #else
-// #define UART_SOURCE_CLK UART_SCLK_DEFAULT
-// #endif
-#define UART_SOURCE_CLK UART_SCLK_RTC
+#if SOC_UART_SUPPORT_XTAL_CLK
+// Works independently of APB frequency, on ESP32C3, ESP32S3.
+#define UART_SOURCE_CLK UART_SCLK_XTAL
+#else
+#define UART_SOURCE_CLK UART_SCLK_DEFAULT
+#endif
+// #define UART_SOURCE_CLK UART_SCLK_RTC // NOTE 最好把 esp-idf/components/soc/esp32c3/include/soc/clk_tree_defs.h 里的 UART_SCLK_DEFAULT 也改掉
 
 #define UART_INV_TX UART_SIGNAL_TXD_INV
 #define UART_INV_RX UART_SIGNAL_RXD_INV

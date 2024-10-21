@@ -216,7 +216,8 @@ static void configure_channel(machine_pwm_obj_t *self) {
 static void set_freq(machine_pwm_obj_t *self, unsigned int freq, ledc_timer_config_t *timer) {
     if (freq != timer->freq_hz) {
         // Find the highest bit resolution for the requested frequency
-        unsigned int i = SOC_CLK_RC_FAST_FREQ_APPROX; // 17.5 MHz 约
+        // unsigned int i = SOC_CLK_RC_FAST_FREQ_APPROX; // 17.5 MHz 约
+        unsigned int i = APB_CLK_FREQ; //80MHz
 
 
         int divider = (i + freq / 2) / freq; // rounded
@@ -243,7 +244,8 @@ static void set_freq(machine_pwm_obj_t *self, unsigned int freq, ledc_timer_conf
         // Configure the new resolution and frequency
         timer->duty_resolution = res;
         timer->freq_hz = freq;
-        timer->clk_cfg = LEDC_USE_RC_FAST_CLK;
+        // timer->clk_cfg = LEDC_USE_RC_FAST_CLK;
+        timer->clk_cfg = LEDC_USE_APB_CLK;
 
 
         // Set frequency
