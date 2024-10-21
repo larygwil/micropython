@@ -14,6 +14,7 @@
 #include "hal/assert.h"
 #include "hal/log.h"
 #include "soc/clk_tree_defs.h"
+#include "esp_rom_uart.h"
 
 static mp_obj_t mypm_sleep_pd_config ( mp_obj_t domain_obj, mp_obj_t option_obj)
 {
@@ -291,6 +292,14 @@ static mp_obj_t mypm_cpu_set_divider ( mp_obj_t divider_obj)
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_cpu_set_divider_obj, mypm_cpu_set_divider);
+//-----------------------------
+static mp_obj_t mypm_wait_uart_tx(mp_obj_t uart_num_obj)
+{
+    uint8_t uart_num = mp_obj_get_int(uart_num_obj);
+    esp_rom_uart_tx_wait_idle(uart_num);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(mypm_wait_uart_tx_obj, mypm_wait_uart_tx);
 //========================================================
 
 // 所有函数要加进这里面
@@ -375,6 +384,9 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     
     // 设置 CPU 分频数
     { MP_ROM_QSTR(MP_QSTR_cpu_set_divider), MP_ROM_PTR(&mypm_cpu_set_divider_obj) },
+    
+    // 等待UART发完
+    { MP_ROM_QSTR(MP_QSTR_wait_uart_tx), MP_ROM_PTR(&mypm_wait_uart_tx_obj) },
 };
 static MP_DEFINE_CONST_DICT(mypm_module_globals, mypm_module_globals_table);
 
