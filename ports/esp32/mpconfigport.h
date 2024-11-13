@@ -255,10 +255,6 @@
 #define MICROPY_HW_USB_CDC                  (MICROPY_HW_ENABLE_USBDEV)
 #endif
 
-// Enable stdio over USB Serial/JTAG peripheral
-#ifndef MICROPY_HW_ESP_USB_SERIAL_JTAG
-#define MICROPY_HW_ESP_USB_SERIAL_JTAG      (SOC_USB_SERIAL_JTAG_SUPPORTED && !MICROPY_HW_USB_CDC)
-#endif
 
 #if MICROPY_HW_USB_CDC && MICROPY_HW_ESP_USB_SERIAL_JTAG
 #error "Invalid build config: Can't enable both native USB and USB Serial/JTAG peripheral"
