@@ -13,3 +13,9 @@ require("onewire")
 require("umqtt.robust")
 require("umqtt.simple")
 require("upysh")
+
+require("aioble")
+require("aiorepl")
+require("espflash")
+require("uaiohttpclient")
+
