@@ -99,9 +99,23 @@ static mp_obj_t mp_machine_get_freq(void) {
 
 static void mp_machine_set_freq(size_t n_args, const mp_obj_t *args) {
     mp_int_t freq = mp_obj_get_int(args[0]) / 1000000;
-    if (freq > 160)
-        mp_raise_ValueError(MP_ERROR_TEXT("frequency must <= 160MHz"));
+    
+#if CONFIG_IDF_TARGET_ESP32
+#define MAX_CPU_FREQ_MHZ 240
+#endif
+
+#if CONFIG_IDF_TARGET_ESP32C3
+#define MAX_CPU_FREQ_MHZ 160 
+#endif
+    
+    #define STRINGIFY(x) #x
+    #define TOSTRING(x) STRINGIFY(x)
+    if (freq > MAX_CPU_FREQ_MHZ)
+        mp_raise_ValueError(MP_ERROR_TEXT("frequency must <= " TOSTRING(MAX_CPU_FREQ_MHZ) "MHz"));
+    #undef STRINGIFY
+    #undef TOSTRING
     // 最小 CPU 频率 (MHz)，即仅获取 ESP_PM_APB_FREQ_MAX 锁后所使用的频率。该字段可设置为晶振 (XTAL) 频率值，或者 XTAL 频率值除以整数。注意，10 MHz 是生成 1 MHz 的 REF_TICK 默认时钟所需的最小频率。 
+    
     #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 1, 0)
     esp_pm_config_t pm;
     #else
