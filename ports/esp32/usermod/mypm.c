@@ -49,7 +49,7 @@ static mp_obj_t mypm_pm_configure(mp_obj_t max_freq_mhz_obj, mp_obj_t min_freq_m
     int32_t min_freq_mhz = mp_obj_get_int(min_freq_mhz_obj);
     bool light_sleep_enable = mp_obj_is_true(light_sleep_enable_obj);
     
-    esp_pm_config_esp32c3_t pm;
+    esp_pm_config_t pm;
     pm.max_freq_mhz = max_freq_mhz;
     pm.min_freq_mhz = min_freq_mhz;
     pm.light_sleep_enable = light_sleep_enable;
@@ -303,7 +303,7 @@ static mp_obj_t mypm_wait_uart_tx(mp_obj_t uart_num_obj)
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_wait_uart_tx_obj, mypm_wait_uart_tx);
 //-----------------------------
 static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
-{
+{// TODO 改为用有名传py参
     uint32_t pin_id = mp_obj_get_int(args[0]);
     uint32_t freq = mp_obj_get_int(args[1]);
     uint32_t duty_percent  = mp_obj_get_int(args[2]);//0~100
@@ -318,10 +318,10 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
-        .timer_num        = timer_id,
         .duty_resolution  = reso,
+        .timer_num        = timer_id,
         .freq_hz          = freq,  
-        .clk_cfg          = clk_src
+        .clk_cfg          = clk_src // 这里使用的是有USE的
     };
     esp_err_t ret;
     
@@ -331,13 +331,15 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
     
     // Prepare and then apply the LEDC PWM channel configuration
     ledc_channel_config_t ledc_channel = {
-        .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = channel_id,
-        .timer_sel      = timer_id,
-        .intr_type      = LEDC_INTR_DISABLE,
         .gpio_num       = pin_id,
+        .speed_mode     = LEDC_LOW_SPEED_MODE, // TODO
+        .channel        = channel_id,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .timer_sel      = timer_id,
         .duty           = duty, 
         .hpoint         = 0
+        // TODO
+        // .output_invert
     };
     ret = ledc_channel_config(&ledc_channel);
 //     if (ret != ESP_OK)
@@ -390,9 +392,17 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     // esp_sleep_pd_domain_t （睡眠时可以保持开启的那些域的名称）
     { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_XTAL), MP_ROM_INT(ESP_PD_DOMAIN_XTAL) },
     { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_RC_FAST), MP_ROM_INT(ESP_PD_DOMAIN_RC_FAST) },
-    { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_CPU), MP_ROM_INT(ESP_PD_DOMAIN_CPU) },
     { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_VDDSDIO), MP_ROM_INT(ESP_PD_DOMAIN_VDDSDIO) },
     { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_MAX), MP_ROM_INT(ESP_PD_DOMAIN_MAX) },
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_RTC_PERIPH), MP_ROM_INT(ESP_PD_DOMAIN_RTC_PERIPH) },
+    { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_RTC_SLOW_MEM), MP_ROM_INT(ESP_PD_DOMAIN_RTC_SLOW_MEM) },
+    { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_RTC_FAST_MEM), MP_ROM_INT(ESP_PD_DOMAIN_RTC_FAST_MEM) },
+    { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_MODEM), MP_ROM_INT(ESP_PD_DOMAIN_MODEM) },
+    #endif
+    #ifdef CONFIG_IDF_TARGET_ESP32C3
+    { MP_ROM_QSTR(MP_QSTR_PD_DOMAIN_CPU), MP_ROM_INT(ESP_PD_DOMAIN_CPU) },
+    #endif
                                          
     // esp_sleep_pd_option_t （睡眠时设置是否开始的选项名称）
     { MP_ROM_QSTR(MP_QSTR_PD_OPTION_OFF), MP_ROM_INT(ESP_PD_OPTION_OFF) },
@@ -420,6 +430,11 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_bbpll_enabled), MP_ROM_PTR(&mypm_set_bbpll_enabled_obj) },
     
     // 设置 BBPLL 频率 常数
+    { MP_ROM_QSTR(MP_QSTR_PLL_320M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_80M_FREQ_MHZ) },
+    { MP_ROM_QSTR(MP_QSTR_PLL_320M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_160M_FREQ_MHZ) },
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_PLL_320M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_240M_FREQ_MHZ) },
+    #endif
     { MP_ROM_QSTR(MP_QSTR_PLL_320M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_320M_FREQ_MHZ) },
     { MP_ROM_QSTR(MP_QSTR_PLL_480M_FREQ_MHZ), MP_ROM_INT(CLK_LL_PLL_480M_FREQ_MHZ) },
     // 设置 BBPLL 频率 函数
@@ -441,6 +456,9 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_SOC_CPU_CLK_SRC_XTAL), MP_ROM_INT(SOC_CPU_CLK_SRC_XTAL) },
     { MP_ROM_QSTR(MP_QSTR_SOC_CPU_CLK_SRC_PLL), MP_ROM_INT(SOC_CPU_CLK_SRC_PLL) },
     { MP_ROM_QSTR(MP_QSTR_SOC_CPU_CLK_SRC_RC_FAST), MP_ROM_INT(SOC_CPU_CLK_SRC_RC_FAST) },
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_SOC_CPU_CLK_SRC_APLL), MP_ROM_INT(SOC_CPU_CLK_SRC_APLL) },
+    #endif
     // 设置CPU时钟源的函数
     { MP_ROM_QSTR(MP_QSTR_cpu_set_src), MP_ROM_PTR(&mypm_cpu_set_src_obj) },
     
@@ -452,8 +470,13 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_rtc_slow_set_src), MP_ROM_PTR(&mypm_rtc_slow_set_src_obj) },
     
     // 设置 RTC FAST 时钟源的常数
-    { MP_ROM_QSTR(MP_QSTR_SOC_RTC_FAST_CLK_SRC_XTAL_D2), MP_ROM_INT(SOC_RTC_FAST_CLK_SRC_XTAL_D2) },
     { MP_ROM_QSTR(MP_QSTR_SOC_RTC_FAST_CLK_SRC_RC_FAST), MP_ROM_INT(SOC_RTC_FAST_CLK_SRC_RC_FAST) },
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_SOC_RTC_FAST_CLK_SRC_XTAL_D4), MP_ROM_INT(SOC_RTC_FAST_CLK_SRC_XTAL_D4) },
+    #endif
+    #ifdef CONFIG_IDF_TARGET_ESP32C3
+    { MP_ROM_QSTR(MP_QSTR_SOC_RTC_FAST_CLK_SRC_XTAL_D2), MP_ROM_INT(SOC_RTC_FAST_CLK_SRC_XTAL_D2) },
+    #endif
     // 设置 RTC FAST 时钟源的函数
     { MP_ROM_QSTR(MP_QSTR_rtc_fast_set_src), MP_ROM_PTR(&mypm_rtc_fast_set_src_obj) },
     
@@ -468,14 +491,46 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     
     // 等待UART发完
     { MP_ROM_QSTR(MP_QSTR_wait_uart_tx), MP_ROM_PTR(&mypm_wait_uart_tx_obj) },
-    
-    // LEDC 常数
+    //=========================
+    // PWM
+    // 时钟源选择
+    { MP_ROM_QSTR(MP_QSTR_LEDC_AUTO_CLK), MP_ROM_INT(LEDC_AUTO_CLK) },
     { MP_ROM_QSTR(MP_QSTR_LEDC_USE_APB_CLK), MP_ROM_INT(LEDC_USE_APB_CLK) },
     { MP_ROM_QSTR(MP_QSTR_LEDC_USE_RC_FAST_CLK), MP_ROM_INT(LEDC_USE_RC_FAST_CLK) },
     { MP_ROM_QSTR(MP_QSTR_LEDC_USE_XTAL_CLK), MP_ROM_INT(LEDC_USE_XTAL_CLK) },
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_LEDC_USE_REF_TICK), MP_ROM_INT(LEDC_USE_REF_TICK) },
+    #endif
+    
+    // 注意与上面的有USE的不同。这些是用在ledc_timer_set()函数，而不是更常用的ledc_timer_config()函数
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_LEDC_REF_TICK), MP_ROM_INT(LEDC_REF_TICK) },
+    #endif 
+    { MP_ROM_QSTR(MP_QSTR_LEDC_APB_CLK), MP_ROM_INT(LEDC_APB_CLK) },
+    { MP_ROM_QSTR(MP_QSTR_LEDC_SCLK), MP_ROM_INT(LEDC_SCLK) }, 
+    
+    // 速度模式 
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    { MP_ROM_QSTR(MP_QSTR_LEDC_HIGH_SPEED_MODE), MP_ROM_INT(LEDC_HIGH_SPEED_MODE) },
+    #endif
+    { MP_ROM_QSTR(MP_QSTR_LEDC_LOW_SPEED_MODE), MP_ROM_INT(LEDC_LOW_SPEED_MODE) },
+    { MP_ROM_QSTR(MP_QSTR_LEDC_SPEED_MODE_MAX), MP_ROM_INT(LEDC_SPEED_MODE_MAX) },
+    
+    // 方向
+    { MP_ROM_QSTR(MP_QSTR_LEDC_DUTY_DIR_DECREASE), MP_ROM_INT(LEDC_DUTY_DIR_DECREASE) },
+    { MP_ROM_QSTR(MP_QSTR_LEDC_DUTY_DIR_INCREASE), MP_ROM_INT(LEDC_DUTY_DIR_INCREASE) },
+    { MP_ROM_QSTR(MP_QSTR_LEDC_DUTY_DIR_MAX), MP_ROM_INT(LEDC_DUTY_DIR_MAX) },
+    
+    //中断
+    { MP_ROM_QSTR(MP_QSTR_LEDC_INTR_DISABLE), MP_ROM_INT(LEDC_INTR_DISABLE) },
+    { MP_ROM_QSTR(MP_QSTR_LEDC_INTR_FADE_END), MP_ROM_INT(LEDC_INTR_FADE_END) },
+    { MP_ROM_QSTR(MP_QSTR_LEDC_INTR_MAX), MP_ROM_INT(LEDC_INTR_MAX) },
+    
     // LEDC 函数
     { MP_ROM_QSTR(MP_QSTR_ledc_init), MP_ROM_PTR(&mypm_ledc_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_ledc_stop), MP_ROM_PTR(&mypm_ledc_stop_obj) },
+    
+    // { MP_ROM_QSTR(MP_QSTR_), MP_ROM_INT() },
 };
 static MP_DEFINE_CONST_DICT(mypm_module_globals, mypm_module_globals_table);
 
