@@ -5,7 +5,7 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
         { MP_QSTR_pin_id,       MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         { MP_QSTR_freq,         MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1000} },
         { MP_QSTR_duty_percent, MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 2} },
-        { MP_QSTR_channel_id,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_chan_id,      MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         { MP_QSTR_timer_id  ,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         
         { MP_QSTR_speed_mode    , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = LEDC_LOW_SPEED_MODE} },
@@ -22,7 +22,7 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     uint32_t pin_id = args[0].u_int;
     uint32_t freq = args[1].u_int;
     uint32_t duty_percent  = args[2].u_int;//0~100
-    uint32_t channel_id  = args[3].u_int;// ESP32C3:0~5
+    uint32_t chan_id  = args[3].u_int;// ESP32C3:0~5
     uint32_t timer_id = args[4].u_int; // ESP32C3:0~3
     uint32_t speed_mode = args[5].u_int; // enum
     uint32_t reso = args[6].u_int;   // ESP32C3:1~14
@@ -52,7 +52,7 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     ledc_channel_config_t ledc_channel = {
         .gpio_num       = pin_id,
         .speed_mode     = speed_mode, 
-        .channel        = channel_id,
+        .channel        = chan_id,
         .intr_type      = intr_type, 
         .timer_sel      = timer_id,
         .duty           = duty, 
@@ -69,7 +69,7 @@ static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_init_obj, 5, mypm_ledc_init);
 static mp_obj_t mypm_ledc_stop(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
 {
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_channel_id,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_chan_id,      MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         { MP_QSTR_timer_id  ,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         { MP_QSTR_speed_mode,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         { MP_QSTR_idle_level,  MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
@@ -78,14 +78,14 @@ static mp_obj_t mypm_ledc_stop(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
     
-    uint32_t channel_id = args[0].u_int;
+    uint32_t chan_id = args[0].u_int;
     uint32_t timer_id = args[1].u_int;
     uint32_t speed_mode = args[2].u_int;
     uint32_t idle_level = args[3].u_int;
     
     esp_err_t ret;
     
-    ret = ledc_stop(speed_mode, channel_id, idle_level);
+    ret = ledc_stop(speed_mode, chan_id, idle_level);
     if (ret != ESP_OK)
         return mp_const_false;
     
