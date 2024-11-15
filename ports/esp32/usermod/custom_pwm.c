@@ -39,15 +39,6 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
         // .output_invert
     };
     ret = ledc_channel_config(&ledc_channel);
-    //     if (ret != ESP_OK)
-    //         return mp_const_false;
-    //     
-    //     ret = ledc_set_duty(LEDC_LOW_SPEED_MODE, channel_id, duty);
-    //     if (ret != ESP_OK)
-    //         return mp_const_false;
-    // 
-    //     // Update duty to apply the new value
-    //     ret = ledc_update_duty(LEDC_LOW_SPEED_MODE, channel_id);
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;
     
 }
