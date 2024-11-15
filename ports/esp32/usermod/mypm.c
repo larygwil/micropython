@@ -492,6 +492,8 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_6), MP_ROM_INT(DAC_COSINE_ATTEN_DB_6) },
     { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_12), MP_ROM_INT(DAC_COSINE_ATTEN_DB_12) },
     { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_18), MP_ROM_INT(DAC_COSINE_ATTEN_DB_18) },
+    // DAC函数
+    { MP_ROM_QSTR(MP_QSTR_dac_cosine_start), MP_ROM_PTR(&mypm_dac_cosine_start_obj) },
     #endif
     // { MP_ROM_QSTR(MP_QSTR_), MP_ROM_INT() },
 };

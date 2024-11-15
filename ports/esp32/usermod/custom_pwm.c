@@ -57,13 +57,13 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
         .timer_sel      = timer_id,
         .duty           = duty, 
         .hpoint         = hpoint, 
-        .output_invert  = output_invert, 
+        .flags.output_invert  = output_invert, 
     };
     ret = ledc_channel_config(&ledc_channel);
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;
     
 }
-static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_init_obj, 5, mypm_ledc_init);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_init_obj, 0, mypm_ledc_init);
 //----------------------------
 // ledc_timer_rst() ??
 static mp_obj_t mypm_ledc_stop(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
@@ -103,20 +103,20 @@ static mp_obj_t mypm_ledc_stop(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;   
 }
-static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_stop_obj, 3, mypm_ledc_stop);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_stop_obj, 0, mypm_ledc_stop);
 //=========================
 #ifdef CONFIG_IDF_TARGET_ESP32
 static mp_obj_t mypm_dac_cosine_start(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
 {
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_chan_id,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} }, // 0=gpio25 1=gpio26
-        { MP_QSTR_freq,         MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1000} },
+        { MP_QSTR_chan_id,  MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} }, // 0=gpio25 1=gpio26
+        { MP_QSTR_freq,     MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1000} },
         
-        { MP_QSTR_atten       , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_ATTEN_DEFAULT} },  // enum
+        { MP_QSTR_atten        , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_ATTEN_DEFAULT} },  // enum
         { MP_QSTR_offset       , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} }, 
-        { MP_QSTR_phase       , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_PHASE_0} }, // enum
-        { MP_QSTR_clk_src       , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_CLK_SRC_DEFAULT} }, // enum
-        { MP_QSTR_force_freq ,  , MP_ARG_KW_ONLY | MP_ARG_BOOL {.u_bool= true} }, 
+        { MP_QSTR_phase        , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_PHASE_0} }, // enum
+        { MP_QSTR_clk_src      , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_CLK_SRC_DEFAULT} }, // enum
+        { MP_QSTR_force_freq   , MP_ARG_KW_ONLY | MP_ARG_BOOL,  {.u_bool= true} }, 
     };
     
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
@@ -128,14 +128,14 @@ static mp_obj_t mypm_dac_cosine_start(size_t n_args, const mp_obj_t *pos_args, m
     uint32_t offset = args[3].u_int;
     uint32_t phase = args[4].u_int; //enum
     uint32_t clk_src = args[5].u_int; //enum
-    uint32_t force_freq = args[6].u_bool; // 强制让另一通道频率也改变
+    bool force_freq = args[6].u_bool; // 强制让另一通道频率也改变
     
     
     dac_cosine_handle_t chan_handle;
     dac_cosine_config_t cos_cfg = {
         .chan_id = chan_id, // int 0~1
-        .freq_hz = freq, // It will be covered by 8000 in the latter configuration
-        .clk_src = DAC_COSINE_CLK_SRC_DEFAULT,
+        .freq_hz = freq, 
+        .clk_src = clk_src,
         .offset = offset,
         .phase = phase,
         .atten = atten,
@@ -150,5 +150,5 @@ static mp_obj_t mypm_dac_cosine_start(size_t n_args, const mp_obj_t *pos_args, m
     ret = dac_cosine_start(chan_handle);
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;   
 }
-static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_dac_cosine_start_obj, 2, mypm_dac_cosine_start);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_dac_cosine_start_obj, 0, mypm_dac_cosine_start);
 #endif
