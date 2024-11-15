@@ -2,12 +2,12 @@
 static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
 {
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_pin_id,         MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = -1} },
-        { MP_QSTR_freq,           MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 1000} },
-        { MP_QSTR_duty_percent,   MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 2} },
+        { MP_QSTR_pin_id,       MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_freq,         MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1000} },
+        { MP_QSTR_duty_percent, MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 2} },
         // TODO 速度模式
-        { MP_QSTR_channel_id, MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
-        { MP_QSTR_timer_id  , MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_channel_id,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_timer_id  ,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
         
         { MP_QSTR_reso      , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 8} },
         { MP_QSTR_clk_src   , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = LEDC_AUTO_CLK} },
