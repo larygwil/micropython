@@ -4,9 +4,9 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
     uint32_t pin_id = mp_obj_get_int(args[0]);
     uint32_t freq = mp_obj_get_int(args[1]);
     uint32_t duty_percent  = mp_obj_get_int(args[2]);//0~100
-    uint32_t channel_id  = mp_obj_get_int(args[3]);// 0~5
-    uint32_t timer_id = mp_obj_get_int(args[4]); // 0~3
-    uint32_t reso = mp_obj_get_int(args[5]);   // 1~14
+    uint32_t channel_id  = mp_obj_get_int(args[3]);// ESP32C3:0~5
+    uint32_t timer_id = mp_obj_get_int(args[4]); // ESP32C3:0~3
+    uint32_t reso = mp_obj_get_int(args[5]);   // ESP32C3:1~14
     uint32_t clk_src = mp_obj_get_int(args[6]); // enum
     
     uint32_t duty = (int) ((float)duty_percent/100*(1<<reso) );
@@ -14,7 +14,7 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
     
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
-        .speed_mode       = LEDC_LOW_SPEED_MODE,
+        .speed_mode       = LEDC_LOW_SPEED_MODE, // TODO
         .duty_resolution  = reso,
         .timer_num        = timer_id,
         .freq_hz          = freq,  
@@ -31,7 +31,7 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
         .gpio_num       = pin_id,
         .speed_mode     = LEDC_LOW_SPEED_MODE, // TODO
         .channel        = channel_id,
-        .intr_type      = LEDC_INTR_DISABLE,
+        .intr_type      = LEDC_INTR_DISABLE, // TODO
         .timer_sel      = timer_id,
         .duty           = duty, 
         .hpoint         = 0
@@ -45,7 +45,7 @@ static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mypm_ledc_init_obj, 7, 7, mypm_ledc_init);
 //----------------------------
 // ledc_timer_rst() ??
-static mp_obj_t mypm_ledc_stop(mp_obj_t channel_id_obj, mp_obj_t timer_id_obj)
+static mp_obj_t mypm_ledc_stop(mp_obj_t channel_id_obj, mp_obj_t timer_id_obj) // TODO 速度模式 、停后电压高低
 {
     uint32_t channel_id = mp_obj_get_int(channel_id_obj);
     uint32_t timer_id = mp_obj_get_int(timer_id_obj);
