@@ -17,6 +17,11 @@
 #include "esp_rom_uart.h"
 #include "driver/ledc.h"
 
+#ifdef CONFIG_IDF_TARGET_ESP32
+#include "driver/dac_cosine.h"
+#endif
+
+
 static mp_obj_t mypm_sleep_pd_config ( mp_obj_t domain_obj, mp_obj_t option_obj)
 {
     int32_t domain = mp_obj_get_int(domain_obj);
@@ -472,6 +477,22 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_ledc_init), MP_ROM_PTR(&mypm_ledc_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_ledc_stop), MP_ROM_PTR(&mypm_ledc_stop_obj) },
     
+    //=================
+    // DAC 
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    // DAC Cosine 时钟源
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_CLK_SRC_RTC_FAST), MP_ROM_INT(DAC_COSINE_CLK_SRC_RTC_FAST) },
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_CLK_SRC_DEFAULT), MP_ROM_INT(DAC_COSINE_CLK_SRC_DEFAULT) }, // 这个其实就是RTC_FAST
+    // DAC Cosine 相位
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_PHASE_0), MP_ROM_INT(DAC_COSINE_PHASE_0) },
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_PHASE_180), MP_ROM_INT(DAC_COSINE_PHASE_180) },
+    // DAC 衰减
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DEFAULT), MP_ROM_INT(DAC_COSINE_ATTEN_DEFAULT) }, // 与0同
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_0), MP_ROM_INT(DAC_COSINE_ATTEN_DB_0) },
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_6), MP_ROM_INT(DAC_COSINE_ATTEN_DB_6) },
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_12), MP_ROM_INT(DAC_COSINE_ATTEN_DB_12) },
+    { MP_ROM_QSTR(MP_QSTR_DAC_COSINE_ATTEN_DB_18), MP_ROM_INT(DAC_COSINE_ATTEN_DB_18) },
+    #endif
     // { MP_ROM_QSTR(MP_QSTR_), MP_ROM_INT() },
 };
 static MP_DEFINE_CONST_DICT(mypm_module_globals, mypm_module_globals_table);
