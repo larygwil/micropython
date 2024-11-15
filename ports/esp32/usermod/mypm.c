@@ -78,6 +78,7 @@ static mp_obj_t mypm_deepsleep(mp_obj_t ms_obj)
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_deepsleep_obj, mypm_deepsleep);
 //--------------------------------------------
+#ifdef CONFIG_IDF_TARGET_ESP32C3
 static mp_obj_t mypm_sleep_cpu_retention(mp_obj_t en_obj)
 {
     bool en = mp_obj_is_true(en_obj);
@@ -91,6 +92,7 @@ static mp_obj_t mypm_sleep_cpu_retention(mp_obj_t en_obj)
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_sleep_cpu_retention_obj, mypm_sleep_cpu_retention);
+#endif
 //--------------------------------------------
 static mp_obj_t mypm_clks_info()
 {
@@ -100,6 +102,9 @@ static mp_obj_t mypm_clks_info()
         case SOC_CPU_CLK_SRC_XTAL:  cpu_source_print = "XTAL" ; break;
         case SOC_CPU_CLK_SRC_PLL:  cpu_source_print = "PLL" ; break;
         case SOC_CPU_CLK_SRC_RC_FAST:  cpu_source_print = "RC_FAST" ; break;
+        #ifdef CONFIG_IDF_TARGET_ESP32
+        case SOC_CPU_CLK_SRC_APLL: cpu_source_print = "APLL" ; break;
+        #endif
         default:                   cpu_source_print = "INVALID" ; break;
     }
     uint32_t cpu_freq = clk_hal_cpu_get_freq_hz();
@@ -108,7 +113,13 @@ static mp_obj_t mypm_clks_info()
     soc_rtc_fast_clk_src_t rtc_fast_source = clk_ll_rtc_fast_get_src();
     char * rtc_fast_source_print;
     switch(rtc_fast_source) {
+        #ifdef CONFIG_IDF_TARGET_ESP32
+        case SOC_RTC_FAST_CLK_SRC_XTAL_D4: rtc_fast_source_print = "XTAL_D4"; break;
+        #endif
+
+#ifdef CONFIG_IDF_TARGET_ESP32C3
         case SOC_RTC_FAST_CLK_SRC_XTAL_D2: rtc_fast_source_print = "XTAL_D2"; break;
+#endif
         case SOC_RTC_FAST_CLK_SRC_RC_FAST: rtc_fast_source_print = "RC_FAST"; break;
         default:                           rtc_fast_source_print = "INVALID"; break;
     }
@@ -271,8 +282,12 @@ static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rtc_fast_set_src_obj, mypm_rtc_fast_set_sr
 static mp_obj_t mypm_rc_fast_set_divider ( mp_obj_t divider_obj)
 {
     uint32_t divider = mp_obj_get_int(divider_obj);
-    // clk_ll_rc_fast_set_divider(divider);
+    #ifdef CONFIG_IDF_TARGET_ESP32
+    clk_ll_rc_fast_set_divider(divider);
+    #endif
+    #ifdef CONFIG_IDF_TARGET_ESP32C3
     rtc_clk_8m_divider_set(divider);
+    #endif
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_fast_set_divider_obj, mypm_rc_fast_set_divider);
@@ -341,7 +356,9 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     // lightsleep和deepsleep。原MPY已有在machine里，但自己搞个可能不一样。deepsleep后不reset不知能不能用
     { MP_ROM_QSTR(MP_QSTR_lightsleep), MP_ROM_PTR(&mypm_lightsleep_obj) },
     { MP_ROM_QSTR(MP_QSTR_deepsleep), MP_ROM_PTR(&mypm_deepsleep_obj) },
+    #ifdef CONFIG_IDF_TARGET_ESP32C3
     { MP_ROM_QSTR(MP_QSTR_sleep_cpu_retention), MP_ROM_PTR(&mypm_sleep_cpu_retention_obj) },
+    #endif
     
     // 打印时钟和频率相关信息
     { MP_ROM_QSTR(MP_QSTR_clks_info), MP_ROM_PTR(&mypm_clks_info_obj) },
