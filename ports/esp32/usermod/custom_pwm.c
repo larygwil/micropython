@@ -113,7 +113,7 @@ static mp_obj_t mypm_dac_cosine_start(size_t n_args, const mp_obj_t *pos_args, m
         { MP_QSTR_freq,     MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1000} },
         
         { MP_QSTR_atten        , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_ATTEN_DEFAULT} },  // enum
-        { MP_QSTR_offset       , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} }, 
+        { MP_QSTR_dc           , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} }, 
         { MP_QSTR_phase        , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_PHASE_0} }, // enum
         { MP_QSTR_clk_src      , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DAC_COSINE_CLK_SRC_DEFAULT} }, // enum
         { MP_QSTR_force_freq   , MP_ARG_KW_ONLY | MP_ARG_BOOL,  {.u_bool= true} }, 
