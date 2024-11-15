@@ -1,6 +1,25 @@
 //-----------------------------
-static mp_obj_t mypm_ledc_init(mp_uint_t n_args, const mp_obj_t *args)
-{// TODO 改为用有名传py参
+static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
+{
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_pin_id,         MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_freq,           MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 1000} },
+        { MP_QSTR_duty_percent,   MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 2} },
+        // TODO 速度模式
+        { MP_QSTR_channel_id, MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_timer_id  , MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        
+        { MP_QSTR_reso      , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 8} },
+        { MP_QSTR_clk_src   , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = LEDC_AUTO_CLK} },
+        
+        // { MP_QSTR_intr_type   , MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = LEDC_INTR_DISABLE} }, TODO 
+        // TODO hpoint
+        // TODO output_invert
+    };
+    
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    
     uint32_t pin_id = mp_obj_get_int(args[0]);
     uint32_t freq = mp_obj_get_int(args[1]);
     uint32_t duty_percent  = mp_obj_get_int(args[2]);//0~100
