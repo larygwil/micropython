@@ -20,13 +20,13 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
     
-    uint32_t pin_id = mp_obj_get_int(args[0]);
-    uint32_t freq = mp_obj_get_int(args[1]);
-    uint32_t duty_percent  = mp_obj_get_int(args[2]);//0~100
-    uint32_t channel_id  = mp_obj_get_int(args[3]);// ESP32C3:0~5
-    uint32_t timer_id = mp_obj_get_int(args[4]); // ESP32C3:0~3
-    uint32_t reso = mp_obj_get_int(args[5]);   // ESP32C3:1~14
-    uint32_t clk_src = mp_obj_get_int(args[6]); // enum
+    uint32_t pin_id = args[0].u_int;
+    uint32_t freq = args[1].u_int;
+    uint32_t duty_percent  = args[2].u_int;//0~100
+    uint32_t channel_id  = args[3].u_int;// ESP32C3:0~5
+    uint32_t timer_id = args[4].u_int; // ESP32C3:0~3
+    uint32_t reso = args[5].u_int;   // ESP32C3:1~14
+    uint32_t clk_src = args[6].u_int; // enum
     
     uint32_t duty = (int) ((float)duty_percent/100*(1<<reso) );
     // 在 ESP32-C3 上，当通道绑定的定时器配置了其最大 PWM 占空比分辨率（ MAX_DUTY_RES ），通道的占空比不能被设置到 (2 ** MAX_DUTY_RES) 。否则，硬件内部占空比计数器会溢出，并导致占空比计算错误。
@@ -61,7 +61,7 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;
     
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mypm_ledc_init_obj, 7, 7, mypm_ledc_init);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_init_obj, 3, mypm_ledc_init);
 //----------------------------
 // ledc_timer_rst() ??
 static mp_obj_t mypm_ledc_stop(mp_obj_t channel_id_obj, mp_obj_t timer_id_obj) // TODO 速度模式 、停后电压高低
