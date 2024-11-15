@@ -186,10 +186,10 @@ static mp_obj_t mypm_set_bbpll_enabled(mp_obj_t en_obj)
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_set_bbpll_enabled_obj, mypm_set_bbpll_enabled);
 //---------------------------------------------
 void rtc_clk_bbpll_configure(rtc_xtal_freq_t xtal_freq, int pll_freq);
-// 这是来自 esp-idf/components/esp_hw_support/port/esp32c3/rtc_clk.c
+// 这是来自 esp-idf/components/esp_hw_support/port/esp32[c3]/rtc_clk.c
 // 在IDF 5.2中还需要把上面这个文件的这个函数定义的static去掉
 
-// NOTE 改成320后wifi无法用
+// NOTE ESP32C3 实测改成320后wifi无法用
 static mp_obj_t mypm_bbpll_set_freq(mp_obj_t freq_obj)
 {
     uint32_t freq = mp_obj_get_int(freq_obj);
@@ -292,6 +292,7 @@ static mp_obj_t mypm_rc_fast_set_divider ( mp_obj_t divider_obj)
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_fast_set_divider_obj, mypm_rc_fast_set_divider);
 //--------------------------------------------------------------------
+#ifdef CONFIG_IDF_TARGET_ESP32C3
 static mp_obj_t mypm_rc_slow_set_divider ( mp_obj_t divider_obj)
 {
     uint32_t divider = mp_obj_get_int(divider_obj);
@@ -300,6 +301,7 @@ static mp_obj_t mypm_rc_slow_set_divider ( mp_obj_t divider_obj)
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mypm_rc_slow_set_divider_obj, mypm_rc_slow_set_divider);
+#endif
 //--------------------------------------------------------------------
 static mp_obj_t mypm_cpu_set_divider ( mp_obj_t divider_obj)
 {
@@ -421,8 +423,9 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_rc_fast_set_divider), MP_ROM_PTR(&mypm_rc_fast_set_divider_obj) },
     
     // 设置 RC SLOW 分频数 
+    #ifdef CONFIG_IDF_TARGET_ESP32C3
     { MP_ROM_QSTR(MP_QSTR_rc_slow_set_divider), MP_ROM_PTR(&mypm_rc_slow_set_divider_obj) },
-    
+    #endif
     // 设置 CPU 分频数
     { MP_ROM_QSTR(MP_QSTR_cpu_set_divider), MP_ROM_PTR(&mypm_cpu_set_divider_obj) },
     
@@ -434,9 +437,11 @@ static const mp_rom_map_elem_t mypm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_LEDC_AUTO_CLK), MP_ROM_INT(LEDC_AUTO_CLK) },
     { MP_ROM_QSTR(MP_QSTR_LEDC_USE_APB_CLK), MP_ROM_INT(LEDC_USE_APB_CLK) },
     { MP_ROM_QSTR(MP_QSTR_LEDC_USE_RC_FAST_CLK), MP_ROM_INT(LEDC_USE_RC_FAST_CLK) },
-    { MP_ROM_QSTR(MP_QSTR_LEDC_USE_XTAL_CLK), MP_ROM_INT(LEDC_USE_XTAL_CLK) },
     #ifdef CONFIG_IDF_TARGET_ESP32
     { MP_ROM_QSTR(MP_QSTR_LEDC_USE_REF_TICK), MP_ROM_INT(LEDC_USE_REF_TICK) },
+    #endif
+    #ifdef CONFIG_IDF_TARGET_ESP32C3
+    { MP_ROM_QSTR(MP_QSTR_LEDC_USE_XTAL_CLK), MP_ROM_INT(LEDC_USE_XTAL_CLK) },
     #endif
     
     // 注意与上面的有USE的不同。这些是用在ledc_timer_set()函数，而不是更常用的ledc_timer_config()函数
