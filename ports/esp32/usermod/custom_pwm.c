@@ -66,29 +66,41 @@ static mp_obj_t mypm_ledc_init(size_t n_args, const mp_obj_t *pos_args, mp_map_t
 static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_init_obj, 5, mypm_ledc_init);
 //----------------------------
 // ledc_timer_rst() ??
-static mp_obj_t mypm_ledc_stop(mp_obj_t channel_id_obj, mp_obj_t timer_id_obj) // TODO 速度模式 、停后电压高低
+static mp_obj_t mypm_ledc_stop(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
 {
-    uint32_t channel_id = mp_obj_get_int(channel_id_obj);
-    uint32_t timer_id = mp_obj_get_int(timer_id_obj);
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_channel_id,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_timer_id  ,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_speed_mode,   MP_ARG_REQUIRED | MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_idle_level,  MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+    };
+    
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    
+    uint32_t channel_id = args[0].u_int;
+    uint32_t timer_id = args[1].u_int;
+    uint32_t speed_mode = args[2].u_int;
+    uint32_t idle_level = args[3].u_int;
     
     esp_err_t ret;
     
-    ret = ledc_stop(LEDC_LOW_SPEED_MODE, channel_id, 0);
+    ret = ledc_stop(speed_mode, channel_id, idle_level);
     if (ret != ESP_OK)
         return mp_const_false;
     
     
-    ret = ledc_timer_pause(LEDC_LOW_SPEED_MODE, timer_id);
+    ret = ledc_timer_pause(speed_mode, timer_id);
     if (ret != ESP_OK)
         return mp_const_false;
     
     ledc_timer_config_t ledc_timer = {
         .deconfigure = true, 
-        .speed_mode       = LEDC_LOW_SPEED_MODE,
+        .speed_mode       = speed_mode,
         .timer_num        = timer_id,
     };
     ret = ledc_timer_config(&ledc_timer);
     
     return (ret == ESP_OK) ? mp_const_true : mp_const_false;   
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(mypm_ledc_stop_obj, mypm_ledc_stop); 
+static MP_DEFINE_CONST_FUN_OBJ_KW(mypm_ledc_stop_obj, 3, mypm_ledc_stop);
